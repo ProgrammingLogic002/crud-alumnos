@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Registrate</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: 1.2rem;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center; 
+        align-items: center;     
+        background-color: #f9f9f9;
+      }
+
+      section {
+        background-color: #fff;
+        padding: 20px;
+        max-width: 300px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      h1, h2 {
+        text-align: center;
+        margin: 0;
+        color: #05012b;
+      }
+
+      input {
+        padding: 8px;
+        font-size: 1rem;
+      }
+
+      button {
+        padding: 10px;
+        font-size: 1rem;
+        background-color: #d9c58f;
+        color: white;
+        border: none; 
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #b5a477;
+      }
+
+      a {
+        text-align: center;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: #4a00e0;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+    <h2>Crear Cuenta</h2>
+    <input type="text" id="nombre" placeholder="Nombre">
+    <input type="email" id="correo" placeholder="Correo">
+    <input type="password" id="contrasena" placeholder="Contrasena">
+    <button id="btn-crear-cuenta">Registrar</button>
+    <a href="Entrar.html">Ya tienes cuenta, Iniciar sesion</a>
+    </section>
+  
+      <script type="module">
+      import { backend } from 'declarations/backend';
+
+      document.getElementById("btn-crear-cuenta").addEventListener("click", async () => {
+        const nombre = document.getElementById("nombre").value.trim();
+        const correo = document.getElementById("correo").value.trim();
+        const contrasena = document.getElementById("contrasena").value.trim();
+
+        if (!nombre || !correo || !contrasena) {
+          alert("Necesitas ingresar tus datos");
+          return;
+        }
+
+        await backend.Crear_Tutor(nombre, correo, contrasena);
+        localStorage.setItem("usuario", nombre);
+        window.location.href = "Entrar.html";
+      });
+      </script>
+  </body>
+</html>

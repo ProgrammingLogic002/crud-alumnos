@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CRUD de Alumnos UwU</title>
+    <style>
+      /* Estilos conservados igual que antes */
+      body {
+        font-family: 'Courier New', Courier, monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 30px;
+        min-height: 100vh;
+        background: linear-gradient(to right, red, orange, yellow);
+        margin: 0;
+      }
+      h1 { margin-bottom: 30px; }
+      h2 { color: #05012b; }
+      section, .student-card, details {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 900px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      input, button {
+        padding: 10px;
+        font-size: 1rem;
+        border-radius: 4px;
+      }
+      input { border: 1px solid #ccc; }
+      button {
+        background-color: #b5a477;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover { background-color: #9e8f67; }
+      summary {
+        background-color: #b5a477;
+        color: white;
+        padding: 10px;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      summary:hover { background-color: #9e8f67; }
+      .usuario-info {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        font-weight: bold;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="usuario-info" id="usuario-info"></div>
+    <h1>Administrar Alumnos</h1>
+
+    <section>
+      <h2>Lista de Estudiantes y Asignaciones</h2>
+      <div id="student-list"></div>
+    </section>
+
+    <details>
+      <summary>Modificar Estudiantes</summary>
+      <section>
+        <h2>Crear Alumno</h2>
+        <input type="text" id="crear-nombre" placeholder="Nombre">
+        <input type="text" id="crear-registro" placeholder="Registro">
+        <button id="btn-crear">Añadir</button>
+      </section>
+      <section>
+        <h2>Actualizar Alumno</h2>
+        <input type="text" id="actualizar-id" placeholder="ID del alumno">
+        <input type="text" id="actualizar-nombre" placeholder="Nuevo nombre">
+        <input type="text" id="actualizar-registro" placeholder="Nuevo registro">
+        <button id="btn-actualizar">Actualizar</button>
+      </section>
+      <section>
+        <h2>Borrar Alumno</h2>
+        <input type="text" id="borrar-id" placeholder="ID del alumno">
+        <button id="btn-borrar">Borrar</button>
+      </section>
+    </details>
+
+    <details>
+      <summary>Modificar Asignaciones</summary>
+      <section>
+        <h2>Crear Asignación</h2>
+        <input type="text" id="actividad-nombre" placeholder="Nombre">
+        <input type="number" id="actividad-calificacion" placeholder="Calificación">
+        <input type="number" id="actividad-parcial" placeholder="Parcial">
+        <input type="text" id="actividad-registroAlumno" placeholder="Registro del alumno">
+        <input type="text" id="actividad-materia" placeholder="Materia">
+        <button id="btn-crear-actividad">Crear Asignación</button>
+      </section>
+
+      <section>
+        <h2>Actualizar Asignación</h2>
+        <input type="text" id="act-id" placeholder="ID">
+        <input type="text" id="act-nombre" placeholder="Nombre">
+        <input type="number" id="act-calificacion" placeholder="Calificación">
+        <input type="number" id="act-parcial" placeholder="Parcial">
+        <input type="text" id="act-registroAlumno" placeholder="Registro del alumno">
+        <input type="text" id="act-materia" placeholder="Materia">
+        <button id="btn-actualizar-actividad">Actualizar</button>
+      </section>
+
+      <section>
+        <h2>Borrar Asignación</h2>
+        <input type="text" id="actividad-id-borrar" placeholder="ID">
+        <button id="btn-borrar-actividad">Borrar</button>
+      </section>
+    </details>
+
+    <section><button id="btn-salir">Salir</button></section>
+
+    <script type="module">
+      import { backend } from 'declarations/backend';
+
+      async function listarEstudiantesYActividades() {
+        const estudiantes = await backend.Listar_Alumn("uwu");
+        const actividades = await backend.Listar_Asig("uwu");
+        const studentListDiv = document.getElementById("student-list");
+        studentListDiv.innerHTML = "";
+
+        estudiantes.forEach(([id, alumno]) => {
+          const card = document.createElement("div");
+          card.className = "student-card";
+
+          const nombre = document.createElement("h3");
+          nombre.textContent = `Nombre: ${alumno.nombre}`;
+          card.appendChild(nombre);
+
+          const registro = document.createElement("p");
+          registro.textContent = `Registro: ${alumno.registro}`;
+          card.appendChild(registro);
+
+          
+         
+            const actividadesParcial = actividades.filter(([, a]) => a.reg_Alumn === alumno.registro );
+            if (actividadesParcial.length > 0) {
+              const lista = document.createElement("ul");
+              actividadesParcial.forEach(([, a]) => {
+                const item = document.createElement("li");
+                item.textContent = `Nombre: ${a.nombre}, Calificación: ${a.calificacion}, Parcial: ${a.parcial} Materia: ${a.materia}`;
+                lista.appendChild(item);
+              });
+              card.appendChild(lista);
+            }
+          
+
+          studentListDiv.appendChild(card);
+        });
+      }
+
+      listarEstudiantesYActividades();
+
+      document.getElementById("btn-crear").addEventListener("click", async () => {
+        const nombre = document.getElementById("crear-nombre").value.trim();
+        const registro = document.getElementById("crear-registro").value.trim();
+        if (!nombre || !registro) return alert("Faltan datos");
+        await backend.Crear_Alumn(nombre, registro);
+        alert("Alumno creado");
+        listarEstudiantesYActividades();
+      });
+
+      document.getElementById("btn-crear-actividad").addEventListener("click", async () => {
+        const nombre = document.getElementById("actividad-nombre").value.trim();
+        const calificacion = parseInt(document.getElementById("actividad-calificacion").value);
+        const parcial = parseInt(document.getElementById("actividad-parcial").value);
+        const reg = document.getElementById("actividad-registroAlumno").value.trim();
+        const materia = document.getElementById("actividad-materia").value.trim();
+        if (!nombre || isNaN(calificacion) || isNaN(parcial) || !reg || !materia) return alert("Datos inválidos");
+        await backend.Crear_Asig(nombre, calificacion, parcial, reg, materia);
+        alert("Asignación creada");
+        listarEstudiantesYActividades();
+      });
+
+      document.getElementById("btn-actualizar-actividad").addEventListener("click", async () => {
+        const id = document.getElementById("act-id").value.trim();
+        const nombre = document.getElementById("act-nombre").value.trim();
+        const calificacion = parseInt(document.getElementById("act-calificacion").value);
+        const parcial = parseInt(document.getElementById("act-parcial").value);
+        const reg = document.getElementById("act-registroAlumno").value.trim();
+        const materia = document.getElementById("act-materia").value.trim();
+        if (!id || !nombre || isNaN(calificacion) || isNaN(parcial) || !reg || !materia) return alert("Datos inválidos");
+        await backend.Actualizar_Asig(id, nombre, calificacion, parcial, reg, materia);
+        alert("Asignación actualizada");
+        listarEstudiantesYActividades();
+      });
+
+      document.getElementById("btn-borrar-actividad").addEventListener("click", async () => {
+        const id = document.getElementById("actividad-id-borrar").value.trim();
+        if (!id) return alert("Proporciona el ID");
+        await backend.borrar_Asig(id);
+        alert("Asignación borrada");
+        listarEstudiantesYActividades();
+      });
+
+      document.getElementById("btn-actualizar").addEventListener("click", async () => {
+        const id = document.getElementById("actualizar-id").value.trim();
+        const nombre = document.getElementById("actualizar-nombre").value.trim();
+        const registro = document.getElementById("actualizar-registro").value.trim();
+        if (!id || !nombre || !registro) {
+          alert("Completa todos los campos para actualizar");
+          return;
+        }
+        await backend.Actualizar_Alumn(id, nombre, registro);
+        alert("Alumno actualizado nyaaa~");
+        listarEstudiantesYActividades();
+      });
+
+      document.getElementById("btn-salir").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        window.location.href = "Index.html";
+      });
+
+      document.getElementById("btn-borrar").addEventListener("click", async () => {
+        const id = document.getElementById("borrar-id").value.trim();
+        if (!id) {
+          alert("Por favor ingresa un ID para borrar");
+          return;
+        }
+        await backend.borrar_Alumn(id);
+        alert("Alumno borrado :(");
+        listarEstudiantesYActividades();
+      });
+
+      const usuario = localStorage.getItem("usuario");
+      if (usuario) document.getElementById("usuario-info").innerText = `Hola, ${usuario}`;
+    </script>
+  </body>
+</html>
